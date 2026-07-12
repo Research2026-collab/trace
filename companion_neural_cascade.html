@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>What Happens in the Brain During Shame?</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --ink:        #1a1a1a;
+    --paper:      #f7f5f0;
+    --muted:      #6b6560;
+    --rule:       #d8d4cc;
+    --s1:         #a02020;
+    --s1-light:   #f5e6e6;
+    --s2:         #3b3472;
+    --s2-light:   #eceaf6;
+    --s3:         #7a3e1a;
+    --s3-light:   #f5ede6;
+    --s4:         #2d5f4f;
+    --s4-light:   #e8f2ef;
+    --s5a:        #2d5f4f;
+    --s5b:        #a02020;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Avenir Next', 'Avenir', 'Century Gothic', Futura, sans-serif;
+    font-size: 15px;
+    line-height: 1.7;
+    min-height: 100vh;
+  }
+
+  header {
+    border-bottom: 1px solid var(--rule);
+    padding: 2.5rem 2rem 1.8rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .eyebrow {
+    font-size: 11px;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 600;
+    margin-bottom: .6rem;
+  }
+
+  h1 {
+    font-size: clamp(1.5rem, 4vw, 2.1rem);
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -.01em;
+    color: var(--ink);
+    margin-bottom: .9rem;
+  }
+
+  .subtitle {
+    font-size: 13.5px;
+    color: var(--muted);
+    max-width: 640px;
+    line-height: 1.65;
+  }
+
+  main {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 2rem 2rem 4rem;
+  }
+
+  .section-label {
+    font-size: 10.5px;
+    letter-spacing: .13em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 600;
+    margin-bottom: .8rem;
+    margin-top: 1rem;
+  }
+
+  /* Stepper */
+  .stepper {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    margin-bottom: 2rem;
+    overflow-x: auto;
+  }
+  .step-btn {
+    background: none;
+    border: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: .4rem;
+    padding: .4rem .6rem;
+    cursor: pointer;
+    font-family: inherit;
+    flex-shrink: 0;
+  }
+  .step-dot {
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    border: 2px solid var(--rule);
+    background: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700; color: var(--muted);
+    transition: all .2s;
+  }
+  .step-label {
+    font-size: 10.5px;
+    color: var(--muted);
+    font-weight: 600;
+    text-align: center;
+    max-width: 90px;
+    line-height: 1.3;
+  }
+  .step-connector {
+    width: 28px; height: 2px; background: var(--rule); flex-shrink: 0;
+    margin-bottom: 1.6rem;
+  }
+  .step-btn.active-1 .step-dot { border-color: var(--s1); color: var(--s1); background: var(--s1-light); }
+  .step-btn.active-2 .step-dot { border-color: var(--s2); color: var(--s2); background: var(--s2-light); }
+  .step-btn.active-3 .step-dot { border-color: var(--s3); color: var(--s3); background: var(--s3-light); }
+  .step-btn.active-4 .step-dot { border-color: var(--s4); color: var(--s4); background: var(--s4-light); }
+  .step-btn.active-5 .step-dot { border-color: var(--ink); color: var(--ink); background: #fff; }
+  .step-btn.active-1 .step-label { color: var(--s1); }
+  .step-btn.active-2 .step-label { color: var(--s2); }
+  .step-btn.active-3 .step-label { color: var(--s3); }
+  .step-btn.active-4 .step-label { color: var(--s4); }
+  .step-btn.active-5 .step-label { color: var(--ink); }
+
+  /* Layout: brain + text */
+  .cascade-layout {
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    gap: 2rem;
+    align-items: start;
+  }
+  @media (max-width: 680px) {
+    .cascade-layout { grid-template-columns: 1fr; }
+  }
+
+  .brain-wrap {
+    border: 1px solid var(--rule);
+    background: #fff;
+    padding: 1.2rem;
+    position: sticky;
+    top: 1rem;
+  }
+  .brain-wrap svg { width: 100%; height: auto; display: block; }
+
+  .region {
+    transition: opacity .35s;
+    opacity: 0;
+  }
+  .region-label {
+    font-size: 9px;
+    font-weight: 700;
+    fill: var(--muted);
+    opacity: 0;
+    transition: opacity .35s;
+  }
+
+  body.tab-1 .region-amyg, body.tab-1 .region-dacc { opacity: 1; }
+  body.tab-1 .label-amyg, body.tab-1 .label-dacc { opacity: 1; }
+  body.tab-1 .region-ins-partial { opacity: .35; }
+
+  body.tab-2 .region-dmn { opacity: 1; }
+  body.tab-2 .label-dmn { opacity: 1; }
+
+  body.tab-3 .region-ins { opacity: 1; }
+  body.tab-3 .label-ins { opacity: 1; }
+
+  body.tab-4 .region-dlpfc { opacity: 1; }
+  body.tab-4 .label-dlpfc { opacity: 1; }
+
+  body.tab-5 .region-dlpfc, body.tab-5 .region-amyg, body.tab-5 .region-dmn { opacity: .5; }
+  body.tab-5 .label-dlpfc, body.tab-5 .label-amyg, body.tab-5 .label-dmn { opacity: .7; }
+
+  .brain-caption {
+    font-size: 11px;
+    color: var(--muted);
+    text-align: center;
+    margin-top: .8rem;
+    line-height: 1.5;
+  }
+
+  .panel { display: none; }
+  .panel.visible { display: block; }
+
+  .panel-head {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 1.3rem;
+  }
+  .panel-accent {
+    width: 4px;
+    min-height: 52px;
+    flex-shrink: 0;
+    border-radius: 2px;
+    margin-top: 3px;
+  }
+  .accent-1 { background: var(--s1); }
+  .accent-2 { background: var(--s2); }
+  .accent-3 { background: var(--s3); }
+  .accent-4 { background: var(--s4); }
+  .accent-5 { background: var(--ink); }
+
+  .panel-label { font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase; font-weight: 700; margin-bottom: .25rem; }
+  .label-1 { color: var(--s1); } .label-2 { color: var(--s2); } .label-3 { color: var(--s3); } .label-4 { color: var(--s4); } .label-5c { color: var(--ink); }
+
+  .panel-name { font-size: 1.15rem; font-weight: 700; line-height: 1.25; color: var(--ink); margin-bottom: .2rem; }
+  .panel-sub { font-size: 12.5px; color: var(--muted); }
+
+  .stat-row { display: flex; flex-wrap: wrap; gap: .5rem; margin-bottom: 1.2rem; }
+  .stat-pill { font-size: 12px; padding: .3rem .75rem; border: 1px solid var(--rule); background: #fff; color: var(--muted); font-weight: 500; }
+  .stat-pill strong { color: var(--ink); font-weight: 700; }
+
+  .panel-body { font-size: 14px; line-height: 1.85; color: #2a2a2a; margin-bottom: 1.1rem; }
+
+  .consequence {
+    border-left: 3px solid var(--rule);
+    padding-left: 1rem;
+    font-size: 13.5px;
+    font-style: italic;
+    color: #444;
+    margin: 1.2rem 0 1.4rem;
+    line-height: 1.7;
+  }
+
+  .outcome-split {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+  @media (max-width: 580px) { .outcome-split { grid-template-columns: 1fr; } }
+  .outcome-card { border: 1px solid var(--rule); padding: 1.1rem 1.2rem; background: #fff; }
+  .outcome-card.adaptive { border-top: 3px solid var(--s4); }
+  .outcome-card.chronic { border-top: 3px solid var(--s1); }
+  .outcome-head { font-size: 11px; letter-spacing: .1em; text-transform: uppercase; font-weight: 700; margin-bottom: .6rem; }
+  .outcome-card.adaptive .outcome-head { color: var(--s4); }
+  .outcome-card.chronic .outcome-head { color: var(--s1); }
+  .outcome-card p { font-size: 13px; line-height: 1.7; color: #2a2a2a; }
+
+  .chapter-ref {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 1.6rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--rule);
+    line-height: 1.55;
+  }
+
+  .nav-buttons { display: flex; justify-content: space-between; margin-top: 2rem; }
+  .nav-buttons button {
+    font-family: inherit; font-size: 12.5px; font-weight: 600;
+    padding: .6rem 1.1rem; border: 1px solid var(--rule); background: #fff; color: var(--ink); cursor: pointer;
+  }
+  .nav-buttons button:hover { border-color: #aaa; }
+  .nav-buttons button:disabled { opacity: .3; cursor: default; }
+
+  footer {
+    border-top: 1px solid var(--rule);
+    padding: 1.4rem 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+    font-size: 11.5px;
+    color: var(--muted);
+    text-align: center;
+    line-height: 1.6;
+  }
+
+  @media (max-width: 600px) {
+    header, main { padding-left: 1.2rem; padding-right: 1.2rem; }
+  }
+
+  .trace-nav {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: .9rem 2rem 0;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .4rem;
+  }
+  .trace-nav-label {
+    font-size: 10px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 700;
+    margin-right: .5rem;
+    flex-basis: 100%;
+  }
+  .trace-nav a, .trace-nav .trace-nav-current {
+    font-size: 11.5px;
+    padding: .3rem .7rem;
+    border: 1px solid var(--rule);
+    color: var(--muted);
+    text-decoration: none;
+    background: #fff;
+    font-family: inherit;
+    white-space: nowrap;
+  }
+  .trace-nav a:hover { color: var(--ink); border-color: #aaa; }
+  .trace-nav .trace-nav-current {
+    color: var(--ink);
+    font-weight: 700;
+    background: var(--paper);
+  }
+  @media (max-width: 600px) {
+    .trace-nav { padding-left: 1.2rem; padding-right: 1.2rem; }
+  }
+</style>
+</head>
+<body class="tab-1">
+<nav class="trace-nav">
+    <span class="trace-nav-label">TRACE Companions</span>
+    <span class="trace-nav-current">Ch. 3.6 What Happens in the Brain During Shame?</span>
+    <a href="index.html">Ch. 4 Three Dimensions of Shame</a>
+    <a href="companion_cultural_shame_concepts.html">Ch. 5 Cultural Shame Concepts</a>
+    <a href="companion_bodymap_shame.html">Ch. 6 Body Map of Shame</a>
+    <a href="companion_capital_dimensions.html">Ch. 7 Capital Dimensions</a>
+    <a href="companion_teacher_interpersonal_behaviours.html">Ch. 7.3 Teacher Interpersonal Behaviours</a>
+    <a href="companion_shame_as_resource.html">Ch. 10 Shame as Resource</a>
+    <a href="companion_teaching_shame_sensitive_moments.html">Ch. 12.1 Teaching in Shame-Sensitive Moments</a>
+    <a href="companion_caste_institutional_governance.html">Ch. 13.1 Caste as Institutional Governance Problem</a>
+  </nav>
+
+<header>
+  <p class="eyebrow">Companion · Chapter 3.6 · TRACE Study</p>
+  <h1>What Happens in the Brain During Shame?</h1>
+  <p class="subtitle">A single social-evaluative moment, followed through the four-step neural cascade described in Chapter 3.6, from alarm detection to cognitive regulation, grounded in the neuroscience developed across Chapter 3.2 to 3.5. A fifth step shows where the cascade leads, drawing on Chapter 3.7.</p>
+</header>
+
+<main>
+
+  <p class="section-label">The cascade</p>
+
+  <nav class="stepper" role="tablist">
+    <button class="step-btn active-1" role="tab" onclick="switchStep(1,this)" aria-selected="true">
+      <span class="step-dot">1</span>
+      <span class="step-label">Alarm &amp; Salience</span>
+    </button>
+    <span class="step-connector"></span>
+    <button class="step-btn" role="tab" onclick="switchStep(2,this)" aria-selected="false">
+      <span class="step-dot">2</span>
+      <span class="step-label">Self-Representation</span>
+    </button>
+    <span class="step-connector"></span>
+    <button class="step-btn" role="tab" onclick="switchStep(3,this)" aria-selected="false">
+      <span class="step-dot">3</span>
+      <span class="step-label">Visceral Response</span>
+    </button>
+    <span class="step-connector"></span>
+    <button class="step-btn" role="tab" onclick="switchStep(4,this)" aria-selected="false">
+      <span class="step-dot">4</span>
+      <span class="step-label">Regulation Attempt</span>
+    </button>
+    <span class="step-connector"></span>
+    <button class="step-btn" role="tab" onclick="switchStep(5,this)" aria-selected="false">
+      <span class="step-dot">5</span>
+      <span class="step-label">Where It Leads</span>
+    </button>
+  </nav>
+
+  <div class="cascade-layout">
+
+    <div class="brain-wrap">
+      <svg viewBox="0 0 260 220" xmlns="http://www.w3.org/2000/svg">
+        <!-- schematic sagittal brain outline, not anatomically precise -->
+        <path d="M 35 105 C 25 65, 65 28, 115 24 C 165 20, 210 40, 228 78 C 240 105, 235 132, 213 150 C 213 165, 198 174, 183 171 C 174 184, 155 188, 141 178 C 122 188, 100 183, 93 169 C 72 167, 56 154, 51 132 C 36 126, 30 118, 35 105 Z"
+          fill="#f2efe9" stroke="#c8c2b6" stroke-width="1.5"/>
+        <!-- brainstem stub -->
+        <path d="M 168 165 C 165 181, 170 195, 181 203 C 188 206, 197 203, 198 194 C 198 183, 189 170, 178 165 Z" fill="#f2efe9" stroke="#c8c2b6" stroke-width="1.5"/>
+
+        <!-- DMN connecting line (only visible at step 2) -->
+        <line class="region region-dmn" x1="72" y1="98" x2="172" y2="86" stroke="var(--s2)" stroke-width="1.5" stroke-dasharray="3,4"/>
+
+        <!-- mPFC (DMN, anterior node) -->
+        <circle class="region region-dmn" cx="62" cy="98" r="15" fill="var(--s2)"/>
+        <text class="region-label label-dmn" x="62" y="76" text-anchor="middle">mPFC</text>
+
+        <!-- dlPFC (regulation) -->
+        <circle class="region region-dlpfc" cx="78" cy="52" r="16" fill="var(--s4)"/>
+        <text class="region-label label-dlpfc" x="78" y="28" text-anchor="middle">dlPFC</text>
+
+        <!-- dACC (alarm) -->
+        <circle class="region region-dacc" cx="128" cy="50" r="15" fill="var(--s1)"/>
+        <text class="region-label label-dacc" x="128" y="27" text-anchor="middle">dACC</text>
+
+        <!-- Insula (visceral, also partly active at step 1) -->
+        <circle class="region region-ins region-ins-partial" cx="118" cy="104" r="14" fill="var(--s3)"/>
+        <text class="region-label label-ins" x="118" y="128" text-anchor="middle">Insula</text>
+
+        <!-- Amygdala (alarm) -->
+        <circle class="region region-amyg" cx="152" cy="132" r="13" fill="var(--s1)"/>
+        <text class="region-label label-amyg" x="152" y="154" text-anchor="middle">Amygdala</text>
+
+        <!-- PCC / Precuneus (DMN, posterior node) -->
+        <circle class="region region-dmn" cx="185" cy="86" r="16" fill="var(--s2)"/>
+        <text class="region-label label-dmn" x="185" y="61" text-anchor="middle">PCC /</text>
+        <text class="region-label label-dmn" x="185" y="73" text-anchor="middle">Precuneus</text>
+      </svg>
+      <p class="brain-caption">Schematic side view. Positions are illustrative and follow the same simplified logic as Figures 2, 4 and 6 in Chapter 3, not a precise anatomical map.</p>
+    </div>
+
+    <div class="panels">
+
+      <!-- STEP 1 -->
+      <div class="panel visible" id="panel-1">
+        <div class="panel-head">
+          <div class="panel-accent accent-1"></div>
+          <div>
+            <p class="panel-label label-1">Step 1</p>
+            <p class="panel-name">Alarm and Salience Detection</p>
+            <p class="panel-sub">Before anything is consciously understood, the brain has already flagged the situation as socially dangerous.</p>
+          </div>
+        </div>
+
+        <div class="stat-row">
+          <span class="stat-pill"><strong>Structures</strong> Amygdala, dACC, anterior insula</span>
+          <span class="stat-pill"><strong>Timing</strong> Pre-conscious, within milliseconds</span>
+        </div>
+
+        <p class="panel-body">
+          A student is asked a question in front of the class and cannot answer. Before there is any conscious thought about the situation, the amygdala functions as a rapid subcortical alarm system, registering the moment as a threat to social standing (Ginot, 2024). In parallel, the salience network, particularly the dorsal anterior cingulate cortex and the anterior insula, flags the stimulus as highly relevant to social survival (Bastin et al., 2021). The dACC responds specifically to the anticipated social pain of devaluation or exclusion, drawing on neural pathways it shares with the processing of physical pain (Piretti et al., 2023).
+        </p>
+
+        <p class="panel-body">
+          This is not yet an emotion in the everyday sense. It is a rapid, embodied classification, dangerous or not dangerous, made before the situation has been thought through.
+        </p>
+
+        <div class="consequence">Cognitive resources begin shifting away from the task itself and towards threat defence, before the student has consciously decided anything (Amran &amp; Bakar, 2020; Marks, 2013).</div>
+
+        <p class="chapter-ref">See Chapter 3.2 for the underlying neural networks and Chapter 3.6 for the cascade in full.</p>
+      </div>
+
+      <!-- STEP 2 -->
+      <div class="panel" id="panel-2">
+        <div class="panel-head">
+          <div class="panel-accent accent-2"></div>
+          <div>
+            <p class="panel-label label-2">Step 2</p>
+            <p class="panel-name">Mental Representation and Self-Focus</p>
+            <p class="panel-sub">The situation is now pictured, and attention turns from the outside world to the self as seen by others.</p>
+          </div>
+        </div>
+
+        <div class="stat-row">
+          <span class="stat-pill"><strong>Structures</strong> DMN, PCC, precuneus, mPFC</span>
+          <span class="stat-pill"><strong>Timing</strong> Roughly 370 ms after the trigger</span>
+        </div>
+
+        <p class="panel-body">
+          Electrophysiological studies show an early negativity in the cuneus around 370 milliseconds after a shame-related stimulus, thought to reflect the mental imaging of the social situation itself (Sánchez-García et al., 2021). At the same time, the brain recruits the Default Mode Network, particularly the posterior cingulate cortex and precuneus, to evaluate the self against social expectations, while the medial prefrontal cortex takes on the work of mentalising, estimating what others might now be thinking of the student (Takahashi et al., 2004; Bastin et al., 2021).
+        </p>
+
+        <p class="panel-body">
+          Attention has moved. It is no longer directed outward, at the question or the task, but inward, at a negative self-representation seen through an imagined audience (Roth et al., 2014).
+        </p>
+
+        <div class="consequence">This is the moment a factual difficulty, not knowing an answer, turns into a social one, being seen not knowing it.</div>
+
+        <p class="chapter-ref">See Chapter 3.2 for the Default Mode Network and Chapter 3.6 for the cascade in full.</p>
+      </div>
+
+      <!-- STEP 3 -->
+      <div class="panel" id="panel-3">
+        <div class="panel-head">
+          <div class="panel-accent accent-3"></div>
+          <div>
+            <p class="panel-label label-3">Step 3</p>
+            <p class="panel-name">Visceral Response</p>
+            <p class="panel-sub">Shame becomes a bodily event, not only a cognitive one.</p>
+          </div>
+        </div>
+
+        <div class="stat-row">
+          <span class="stat-pill"><strong>Structures</strong> Anterior insula, autonomic nervous system</span>
+          <span class="stat-pill"><strong>Timing</strong> Roughly 700 ms after the trigger</span>
+        </div>
+
+        <p class="panel-body">
+          The anterior insula processes uncomfortable internal signals, a sense of shrinking, tightness, heat, or nausea (Piretti et al., 2023). A shift from sympathetic towards parasympathetic dominance can trigger an impulse to disappear, expressed in lowering the head or blushing. A late positivity in the ERP pattern, appearing in medial parietal regions around 700 milliseconds, reflects the brain completing its calculation of social devaluation, comparing one's own conduct against internalised standards (Sánchez-García et al., 2021).
+        </p>
+
+        <p class="panel-body">
+          This is the stage that gives shame its distinctive bodily quality, the reason it is so often described in terms of heat, weight, or the wish to vanish, rather than in purely cognitive terms.
+        </p>
+
+        <div class="consequence">Participants in the TRACE body-mapping data locate these sensations most often in the face, chest and stomach, corresponding closely to this visceral stage of the cascade.</div>
+
+        <p class="chapter-ref">See Chapter 3.3 for shame as social pain and Chapter 6 for the empirical body-mapping data.</p>
+      </div>
+
+      <!-- STEP 4 -->
+      <div class="panel" id="panel-4">
+        <div class="panel-head">
+          <div class="panel-accent accent-4"></div>
+          <div>
+            <p class="panel-label label-4">Step 4</p>
+            <p class="panel-name">Cognitive Regulation Attempt</p>
+            <p class="panel-sub">The brain now tries to bring the intense affect back under control.</p>
+          </div>
+        </div>
+
+        <div class="stat-row">
+          <span class="stat-pill"><strong>Structures</strong> Dorsolateral prefrontal cortex</span>
+          <span class="stat-pill"><strong>Function</strong> Cognitive control and affect regulation</span>
+        </div>
+
+        <p class="panel-body">
+          The dorsolateral prefrontal cortex activates cognitive control mechanisms to regulate the intense negative affect and plan a socially acceptable response (Lloyd et al., 2021). Whether this succeeds is not guaranteed. The same stress response that triggered the alarm in Step 1 is, by this point, already drawing on the HPA axis and catecholamine release, which can themselves impair concentration, working memory and long-term memory retrieval (Amran &amp; Bakar, 2020).
+        </p>
+
+        <p class="panel-body">
+          This is why a student who genuinely knows an answer can fail to retrieve it while standing at the board. The regulation attempt and the interference with memory draw on overlapping resources, and under sufficient load, regulation loses.
+        </p>
+
+        <div class="consequence">Intense shame can impair exactly the executive functions and memory processes a student would need to recover in the moment (Geldenhuys, 2019).</div>
+
+        <p class="chapter-ref">See Chapter 3.5 for the neurochemistry underlying this regulation attempt and Chapter 3.6 for the cascade in full.</p>
+      </div>
+
+      <!-- STEP 5 -->
+      <div class="panel" id="panel-5">
+        <div class="panel-head">
+          <div class="panel-accent accent-5"></div>
+          <div>
+            <p class="panel-label label-5c">Step 5</p>
+            <p class="panel-name">Where the Cascade Leads</p>
+            <p class="panel-sub">A single episode is not yet a pattern. What happens after repeated activation is where the real stakes lie.</p>
+          </div>
+        </div>
+
+        <p class="panel-body">
+          A single pass through this cascade is not, on its own, harmful. Shame is an adaptive signal, and the same system that produces an uncomfortable afternoon can also motivate reflection, repair, and renewed effort. What differs is what happens when this cascade activates repeatedly, over months or years, within a learning environment that offers little recognition or repair.
+        </p>
+
+        <div class="outcome-split">
+          <div class="outcome-card adaptive">
+            <p class="outcome-head">Adaptive pathway</p>
+            <p>Moderated by oxytocin and supported by recognition and relational repair, the same system sustains social bonds and moral integrity. Regulation succeeds often enough that shame remains a signal that can prompt reflection rather than a lasting injury (Zheng et al., 2024).</p>
+          </div>
+          <div class="outcome-card chronic">
+            <p class="outcome-head">Chronic and toxic pathway</p>
+            <p>Repeated activation leads to sustained release of CRF, ACTH and cortisol, which impairs prefrontal neural proliferation and is associated with reduced PCC thickness and reduced right amygdala volume. Shame stops attaching to single situations and comes to characterise the self as a whole (Geldenhuys, 2019; Whittle et al., 2016).</p>
+          </div>
+        </div>
+
+        <p class="panel-body" style="margin-top:1.2rem;">
+          Neuroscience can show which systems are involved in this cascade and what distinguishes its adaptive and chronic forms. It cannot, on its own, explain what a given moment of shame means to a particular student, in a particular classroom, within a particular cultural framework of recognition and belonging. That is the task of the chapters that follow.
+        </p>
+
+        <p class="chapter-ref">See Chapter 3.7 for the full discussion of long-term neurobiological consequences, and Chapter 4 for how this cascade manifests as cognitive, performative and relational shame in educational settings.</p>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="nav-buttons">
+    <button id="prev-btn" onclick="stepBy(-1)" disabled>&larr; Previous</button>
+    <button id="next-btn" onclick="stepBy(1)">Next &rarr;</button>
+  </div>
+
+</main>
+
+<footer>
+  Yadav, H., Vanderheiden, E., &amp; Varshney, S. (2026). <em>Shame as Resource in Indian Education: A Handbook for Teachers, Researchers, and Policy-Makers.</em> &nbsp;&#183;&nbsp; Companion to Chapter 3.6 &nbsp;&#183;&nbsp; TRACE Study
+</footer>
+
+<script>
+  let current = 1;
+  const total = 5;
+
+  function switchStep(n, btn) {
+    current = n;
+    document.querySelectorAll('.step-btn').forEach((b, i) => {
+      b.className = 'step-btn';
+      b.setAttribute('aria-selected', 'false');
+    });
+    const buttons = document.querySelectorAll('.step-btn');
+    buttons[n-1].classList.add('active-' + n);
+    buttons[n-1].setAttribute('aria-selected', 'true');
+
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('visible'));
+    document.getElementById('panel-' + n).classList.add('visible');
+
+    document.body.className = 'tab-' + n;
+
+    document.getElementById('prev-btn').disabled = (current === 1);
+    document.getElementById('next-btn').disabled = (current === total);
+  }
+
+  function stepBy(delta) {
+    const n = current + delta;
+    if (n < 1 || n > total) return;
+    const buttons = document.querySelectorAll('.step-btn');
+    switchStep(n, buttons[n-1]);
+  }
+</script>
+</body>
+</html>
